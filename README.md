@@ -108,22 +108,6 @@ XGBoost (pure) remains the most consistent model on aggregate, but its forecasts
 
 ---
 
-## 🔍 Key Findings
-
-**Prophet (pure) vs Prophet + Exogenous**  
-Adding SELIC, exchange rate, and IGP-M as regressors to Prophet increased average error on early holdout months. Prophet's `add_regressor` assumes an instantaneous linear relationship between the regressor and the target, but in practice SELIC affects inflation with a 6 to 12 month lag. However, as 2026 progressed, the model with regressors demonstrated stronger alignment with the real inflation curve, suggesting it learns the macroeconomic context more effectively over time.
-
-**XGBoost (pure) — best aggregate result**  
-XGBoost achieved the lowest aggregate MAE, with `ipca_lag1` as the dominant feature, confirming the strong AR(1) structure identified in the ACF/PACF analysis. The model captures short-term momentum well but struggles with abrupt spikes that have no precedent in the immediate past lags.
-
-**XGBoost + Exogenous — mean reversion bias**  
-Despite IGP-M lag 1 and lag 2 ranking as the 2nd and 3rd most important features, the model converges toward the historical mean, producing near-constant predictions regardless of input variation. This occurs because the macro variables remain within historically stable ranges, diluting the `ipca_lag1` signal that drives variation in Level 3. This illustrates that feature importance scores alone do not guarantee predictive power.
-
-**Prophet vs XGBoost — architectural difference**  
-Prophet treats each exogenous variable as an independent linear component, making it directly sensitive to absolute value changes. XGBoost treats all features equally in tree splits, requiring macro variables to fall outside historical norms to produce meaningfully different predictions. This fundamental difference explains why Prophet with regressors adapts better to recent macroeconomic shifts, while XGBoost pure excels at capturing stable autocorrelation patterns.
-
----
-
 ## 🔮 Live Forecast
 
 Both notebooks include a **Live Forecast** section that automatically generates a prediction for the next unreleased IPCA month. Once IBGE publishes the official figure, the prediction can be compared against the result to validate the models in a real-world scenario.
