@@ -1,22 +1,20 @@
 [🇧🇷 Versão em Português](README.pt.md)
 
-# 📈 IPCA Forecasting — Prophet vs XGBoost
+# 📈 IPCA Forecasting with Prophet
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white)
 ![Prophet](https://img.shields.io/badge/Prophet-0066CC?style=for-the-badge&logo=python&logoColor=white)
-![XGBoost](https://img.shields.io/badge/XGBoost-EA4335?style=for-the-badge&logo=python&logoColor=white)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
-Forecasting Brazil's official monthly inflation index (IPCA) using Prophet and XGBoost, with and without macroeconomic exogenous variables, structured across 4 progressive levels of complexity.
+Forecasting Brazil's official monthly inflation index (IPCA) using Prophet, with and without macroeconomic exogenous variables, structured across 2 progressive levels of complexity.
 
 ---
 
 ## 📋 Description
 
-This project builds a complete time series forecasting pipeline for the IPCA (Broad Consumer Price Index), Brazil's official inflation index calculated by IBGE. The project compares two fundamentally different modeling approaches: a decomposition-based model (Prophet) and a gradient boosting model (XGBoost), across multiple levels of complexity, with and without macroeconomic variables.
+This project builds a complete time series forecasting pipeline for the IPCA (Broad Consumer Price Index), Brazil's official inflation index calculated by IBGE. The project compares two Prophet configurations: a pure seasonal model (Level 1) and a model enriched with macroeconomic exogenous variables (Level 2).
 
 All data is fetched live from the Brazilian Central Bank's SGS API, keeping every notebook self-contained, reproducible, and always up to date with the latest available month.
 
@@ -24,22 +22,19 @@ All data is fetched live from the Brazilian Central Bank's SGS API, keeping ever
 
 ## 🗂️ Project Structure
 
-The project is divided into 3 notebooks, each self-contained and reproducible:
+The project is divided into 2 notebooks, each self-contained and reproducible:
 
 | Notebook | Content |
 |---|---|
 | `01_EDA_e_Extracao.ipynb` | Exploratory Data Analysis: data ingestion, distribution analysis, stationarity tests (ADF/KPSS), ACF/PACF |
-| `02_Modelagem_Prophet.ipynb` | Levels 1 and 2: Prophet without and with exogenous variables |
-| `03_XGBoost_Modelagem.ipynb` | Levels 3 and 4: XGBoost without and with exogenous variables |
+| `02_Modelagem_Prophet.ipynb` | Prophet modeling: Level 1 (pure) and Level 2 (with exogenous variables), plus an appendix with technical diagnostics |
 
 ### Level Progression
 
 | Level | Model | Features | Highlights |
 |---|---|---|---|
-| 1 | Prophet (pure) | IPCA historical series | Stable baseline that captures long-term trend and annual seasonality |
-| 2 | Prophet + Regressors | IPCA + SELIC, exchange rate, IGP-M | Sensitive to macro shifts with stronger alignment to recent inflation trajectory |
-| 3 | XGBoost (pure) | IPCA lags + calendar features | Best aggregate MAE driven by strong AR(1) autocorrelation structure |
-| 4 | XGBoost + Exogenous | IPCA lags + lagged macro variables | Mean reversion bias where macro variables dilute the lag signal |
+| 1 | Prophet (pure) | IPCA historical series | Stable baseline that captures long-term trend and annual seasonality without external input |
+| 2 | Prophet + Regressors | IPCA + SELIC, exchange rate, IGP-M | Sensitive to macro shifts; aligns more closely with the recent inflation trajectory |
 
 ---
 
@@ -54,8 +49,8 @@ All data is fetched directly from the **Brazilian Central Bank SGS API** at runt
 | Exchange Rate | USD/BRL monthly rate | 3698 |
 | IGP-M | General Market Price Index (wholesale inflation proxy) | 189 |
 
-**Training period:** January 2000 to December 2025  
-**Holdout period:** January 2026 onwards, updated automatically as new months are released
+**Training period:** January 2000 through the end of the previous year (filtered to exclude the pre-Plano Real hyperinflation regime)  
+**Holdout period:** current year, updated automatically as new months are released
 
 ---
 
@@ -64,10 +59,9 @@ All data is fetched directly from the **Brazilian Central Bank SGS API** at runt
 - Python
 - Pandas / NumPy
 - Prophet (Meta)
-- XGBoost
-- Scikit-Learn (`RandomizedSearchCV`, `TimeSeriesSplit`)
+- Scikit-Learn (evaluation metrics)
 - Matplotlib
-- Statsmodels
+- Statsmodels (ADF, KPSS, ACF, PACF)
 - Requests (BCB SGS API)
 
 ---
@@ -77,58 +71,70 @@ All data is fetched directly from the **Brazilian Central Bank SGS API** at runt
 ### Prerequisites
 
 ```bash
-pip install pandas numpy matplotlib requests statsmodels prophet xgboost scikit-learn
+pip install pandas numpy matplotlib requests statsmodels prophet scikit-learn
 ```
 
 ### Steps
 
-1. Clone the repository
-```bash
-git clone https://github.com/Marques07/IPCA-Prophet-vs-XGBoost.git
-```
+**Option A — Run in Google Colab (recommended):**
+
+1. Click the badge below to open the main notebook directly in Colab:
+
+   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Marques07/IPCA-Prophet-Forecasting/blob/main/02_Modelagem_Prophet.ipynb)
+
+2. In Colab, go to **Runtime → Run all** (or run cells manually)
+3. All dependencies are pre-installed in Colab, except Prophet — the notebook handles the installation in the first cell
+
+**Option B — Run locally:**
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Marques07/IPCA-Prophet-Forecasting.git
+   ```
 
 2. Open the notebooks in order:
    - Start with `01_EDA_e_Extracao.ipynb` for context
-   - Run `02_Modelagem_Prophet.ipynb` for Prophet models (recommended: Google Colab)
-   - Run `03_XGBoost_Modelagem.ipynb` for XGBoost models (VS Code or Jupyter)
+   - Run `02_Modelagem_Prophet.ipynb` for the Prophet models
 
-> **Note:** Prophet installation can be tricky on Windows. Google Colab is recommended for the Prophet notebook.
+> **Note:** Prophet installation can be tricky on Windows. Google Colab is recommended.
 
 ---
 
 ## 📊 Results & Model Selection
 
-Aggregate MAE across the full 2026 holdout favors XGBoost (pure), driven by the strong AR(1) structure of the IPCA series. However, aggregate metrics alone do not tell the full story.
+Level 2 (Prophet + exogenous variables) clearly outperforms Level 1, both visually and in the holdout metrics. The forecast from Level 2 tracks the actual IPCA trajectory much more closely, especially during months where macroeconomic conditions shift abruptly.
 
-Prophet with exogenous variables has demonstrated increasing accuracy as more 2026 months become available, capturing the inflation trajectory more closely in recent months. For the purpose of next-month forecasting, where recent trend alignment matters more than historical average error, Prophet with regressors has shown stronger real-world predictive behavior.
+The reason is straightforward: the exogenous variables give the model context that the seasonal pattern alone cannot provide. When SELIC, exchange rate, and IGP-M move, they carry information about where inflation is heading. Level 1 only sees the calendar; Level 2 sees the calendar *and* the macro environment.
 
-XGBoost (pure) remains the most consistent model on aggregate, but its forecasts show less sensitivity to current macroeconomic conditions. XGBoost with exogenous variables exhibits mean reversion bias, converging toward the historical mean regardless of input variation.
+A caveat: Prophet's `add_regressor` assumes exogenous variables affect inflation immediately, while in reality SELIC transmits with a 6-to-12-month lag. Even with this simplification, the added context makes a clear difference.
 
-> Metrics are recalculated automatically on each run as new months become available. Refer to the notebook outputs for current MAE and RMSE values.
+> **Important note on interpretation:** the Level 2 forecast uses the *actual* values of SELIC, exchange rate, and IGP-M during the test period — not predictions. This means Level 2 answers the question "given what we know about the macro environment, what should IPCA be?" rather than "what will IPCA be, without any future information?". This is a common and valid setup for conditional forecasting.
+
+> **Key finding on retraining:** a walk-forward validation (available in the notebook's appendix) showed only modest improvement over the frozen model. This suggests that, for this dataset, adding exogenous information (Level 2) provides a larger predictive gain than periodically retraining on more historical data.
 
 ---
 
 ## 🔮 Live Forecast
 
-Both notebooks include a **Live Forecast** section that automatically generates a prediction for the next unreleased IPCA month. Once IBGE publishes the official figure, the prediction can be compared against the result to validate the models in a real-world scenario.
+Both notebooks include a **Live Forecast** section that automatically generates a prediction for the next unreleased IPCA month. Once IBGE publishes the official figure, the prediction can be compared against the result to validate the model in a real-world scenario.
+
+---
+
+## 🔬 Appendix — Technical Diagnostics
+
+The Prophet notebook includes an appendix with supplementary diagnostics, kept separate from the main pipeline:
+
+1. **Prophet Component Decomposition** — how the model splits the IPCA series into trend and yearly seasonality
+2. **Time-Series Cross-Validation** — Prophet's built-in cross-validation across multiple historical windows (Level 1 and Level 2)
+3. **Walk-Forward Validation** — comparison between a frozen model and a periodically retrained model, simulating a production pipeline
 
 ---
 
 ## ⚠️ Limitations
 
-
-- Holdout window grows automatically as new months are released, so metrics improve over time
-- Prophet's `add_regressor` does not model lag structures, as exogenous variables are fed as contemporaneous values
-- Models are retrained from scratch on each run, with no model persistence implemented
-
-**XGBoost with exogenous variables — mean reversion bias**  
-This is the most significant limitation identified in the project. Despite proper hyperparameter tuning, XGBoost with exogenous variables converges toward a near-constant prediction close to the historical IPCA mean (~0.49%), regardless of what the actual input values are for a given month.
-
-The root cause is architectural. XGBoost uses tree splits to partition the feature space into regions, and since the macro variables (SELIC, exchange rate, and IGP-M) remain within historically stable ranges throughout the training period, the model learns that "when macro conditions look like this, IPCA tends to be around 0.49%." The `ipca_lag1` signal that drives meaningful variation in Level 3 gets diluted by the combined weight of the macro features pointing to the same historical region.
-
-This contrasts with Prophet's behavior, where each exogenous variable acts as an independent linear component, making the model directly sensitive to absolute value changes even within stable ranges. The same macro variables that cause mean reversion in XGBoost actually improve Prophet's forecasts in recent months.
-
-This finding illustrates a broader principle: feature importance scores do not guarantee predictive power. A variable can rank highly in importance while the model still fails to produce meaningful variation in its predictions.
+- **Holdout window is dynamic:** the test set is the current year-to-date, so it grows as new months are released. This mirrors real-world usage but means metrics evolve month to month rather than being directly comparable across runs.
+- **Instantaneous regressor assumption:** `add_regressor` treats each exogenous variable as having a contemporaneous effect on IPCA. In practice, variables like SELIC transmit with a 6-to-12-month lag, so the model captures only part of the causal chain. This is a known simplification of Prophet rather than a bug.
+- **No model persistence:** the model is retrained on each run. This keeps the notebook fully self-contained and reproducible, but would need to be adapted for a production deployment where model artifacts are versioned and cached.
 
 ---
 
