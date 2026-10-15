@@ -78,9 +78,10 @@ pip install pandas numpy matplotlib requests statsmodels prophet scikit-learn
 
 **Option A — Run in Google Colab (recommended):**
 
-1. Click the badge below to open the main notebook directly in Colab:
-
-   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Marques07/IPCA-Prophet-Forecasting/blob/main/02_Modelagem_Prophet.ipynb)
+| Notebook | Open in Colab |
+|---|---|
+| 1. Exploratory Data Analysis | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Marques07/IPCA-Prophet-Forecasting/blob/main/01_EDA_e_Extracao.ipynb) |
+| 2. Prophet Modeling | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Marques07/IPCA-Prophet-Forecasting/blob/main/02_Modelagem_Prophet.ipynb) |
 
 2. In Colab, go to **Runtime → Run all** (or run cells manually)
 3. All dependencies are pre-installed in Colab, except Prophet — the notebook handles the installation in the first cell
