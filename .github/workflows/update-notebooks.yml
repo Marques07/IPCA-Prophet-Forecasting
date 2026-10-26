@@ -26,6 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          ipython kernel install --name "python3" --user
 
       - name: Run Notebook 01
         run: |
