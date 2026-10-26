@@ -4,6 +4,8 @@ prophet
 scikit-learn
 statsmodels
 matplotlib
+plotly
+scipy
 numpy
 papermill
 ipykernel
