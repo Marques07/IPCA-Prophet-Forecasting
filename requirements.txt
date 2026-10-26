@@ -1,0 +1,8 @@
+pandas
+requests
+prophet
+scikit-learn
+statsmodels
+matplotlib
+numpy
+papermill
