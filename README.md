@@ -16,7 +16,7 @@ Forecasting Brazil's official monthly inflation index (IPCA) using Prophet, with
 
 This project builds a complete time series forecasting pipeline for the IPCA (Broad Consumer Price Index), Brazil's official inflation index calculated by IBGE. The project compares two Prophet configurations: a pure seasonal model (Level 1) and a model enriched with macroeconomic exogenous variables (Level 2).
 
-All data is fetched live from the Brazilian Central Bank's SGS API, keeping every notebook self-contained, reproducible, and always up to date with the latest available month.
+All data is fetched live from the Brazilian Central Bank's SGS API, keeping every notebook self-contained, reproducible, and always up to date with the latest available month. The entire pipeline is **automated via GitHub Actions** (see below).
 
 ---
 
@@ -66,6 +66,17 @@ All data is fetched directly from the **Brazilian Central Bank SGS API** at runt
 
 ---
 
+## 🤖 Automation (GitHub Actions)
+
+This repository features a complete CI/CD pipeline via GitHub Actions. On the 1st day of every month, a workflow automatically:
+
+1. Installs the dependencies.
+2. Executes both notebooks using `papermill` (pulling the latest data from the BCB API).
+3. Cleans Colab-specific widget state to keep the git history clean.
+4. Commits and pushes the updated notebooks with new forecasts.
+
+---
+
 ## ⚙️ How to Run
 
 ### Prerequisites
@@ -76,15 +87,15 @@ pip install pandas numpy matplotlib requests statsmodels prophet scikit-learn
 
 ### Steps
 
-**Option A — Run in Google Colab (recommended):**
+**Option A — Run in Colab (recommended):**
 
 | Notebook | Open in Colab |
 |---|---|
 | 1. Exploratory Data Analysis | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Marques07/IPCA-Prophet-Forecasting/blob/main/01_EDA_e_Extracao.ipynb) |
 | 2. Prophet Modeling | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Marques07/IPCA-Prophet-Forecasting/blob/main/02_Modelagem_Prophet.ipynb) |
 
-2. In Colab, go to **Runtime → Run all** (or run cells manually)
-3. All dependencies are pre-installed in Colab, except Prophet — the notebook handles the installation in the first cell
+1. In Colab, go to **Runtime → Run all** (or run cells manually)
+2. All dependencies are pre-installed in Colab, except Prophet — the notebook handles the installation in the first cell
 
 **Option B — Run locally:**
 
@@ -92,7 +103,6 @@ pip install pandas numpy matplotlib requests statsmodels prophet scikit-learn
    ```bash
    git clone https://github.com/Marques07/IPCA-Prophet-Forecasting.git
    ```
-
 2. Open the notebooks in order:
    - Start with `01_EDA_e_Extracao.ipynb` for context
    - Run `02_Modelagem_Prophet.ipynb` for the Prophet models
@@ -111,8 +121,6 @@ A caveat: Prophet's `add_regressor` assumes exogenous variables affect inflation
 
 > **Important note on interpretation:** the Level 2 forecast uses the *actual* values of SELIC, exchange rate, and IGP-M during the test period — not predictions. This means Level 2 answers the question "given what we know about the macro environment, what should IPCA be?" rather than "what will IPCA be, without any future information?". This is a common and valid setup for conditional forecasting.
 
-> **Key finding on retraining:** a walk-forward validation (available in the notebook's appendix) showed only modest improvement over the frozen model. This suggests that, for this dataset, adding exogenous information (Level 2) provides a larger predictive gain than periodically retraining on more historical data.
-
 ---
 
 ## 🔮 Live Forecast
@@ -121,13 +129,14 @@ Both notebooks include a **Live Forecast** section that automatically generates 
 
 ---
 
-## 🔬 Appendix — Technical Diagnostics
+## 🔬 Appendix — Walk-Forward Validation
 
-The Prophet notebook includes an appendix with supplementary diagnostics, kept separate from the main pipeline:
+The Prophet notebook includes an appendix focused on **Walk-Forward Validation**. Since the exogenous variables (SELIC, FX, IGP-M) cannot be perfectly forecasted for multi-step ahead horizons without adding significant uncertainty, traditional cross-validation for Level 2 is not employed here. 
 
-1. **Prophet Component Decomposition** — how the model splits the IPCA series into trend and yearly seasonality
-2. **Time-Series Cross-Validation** — Prophet's built-in cross-validation across multiple historical windows (Level 1 and Level 2)
-3. **Walk-Forward Validation** — comparison between a frozen model and a periodically retrained model, simulating a production pipeline
+Instead, the walk-forward validation acts as the most honest and robust test:
+
+1. **Prophet Component Decomposition** — visualizes the trend and yearly seasonality.
+2. **Walk-Forward Validation (Level 1)** — an incremental retraining simulation (month-by-month over the last 24 months) to measure how the pure Prophet model performs in a production-like pipeline.
 
 ---
 
@@ -135,6 +144,7 @@ The Prophet notebook includes an appendix with supplementary diagnostics, kept s
 
 - **Holdout window is dynamic:** the test set is the current year-to-date, so it grows as new months are released. This mirrors real-world usage but means metrics evolve month to month rather than being directly comparable across runs.
 - **Instantaneous regressor assumption:** `add_regressor` treats each exogenous variable as having a contemporaneous effect on IPCA. In practice, variables like SELIC transmit with a 6-to-12-month lag, so the model captures only part of the causal chain. This is a known simplification of Prophet rather than a bug.
+- **Walk-forward scope:** the walk-forward validation only applies to Level 1 (pure Prophet). Retraining Level 2 month-by-month would require predicting the exogenous variables at each step, which is outside the scope of this project. The comparison between the frozen holdout and the walk-forward is indicative, not apples-to-apples.
 - **No model persistence:** the model is retrained on each run. This keeps the notebook fully self-contained and reproducible, but would need to be adapted for a production deployment where model artifacts are versioned and cached.
 
 ---
